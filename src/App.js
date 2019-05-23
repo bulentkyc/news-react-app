@@ -1,14 +1,17 @@
 import React from 'react';
 import './App.css';
 
-import NewsCard from './newsCard/newsCard'
+import NewsCard from './newsCard/newsCard';
+import NavBar from './navBar/navBar'
 
 class App extends React.Component {
 
 state = {
   error: null,
   isLoaded: false,
-  result: []
+  result: [],
+  cartCount: 0,
+  cart: []
 };
 
   componentDidMount() {
@@ -34,23 +37,55 @@ state = {
       )
   }
 
+  addToCart = (index,title) =>{
+
+    const itemIndex = this.state.cart.findIndex(item => {
+      return item.title === title;
+    });
+    let cart=[...this.state.cart];
+    
+    if (itemIndex >= 0) {
+      cart[itemIndex].amount += 1;
+    }else{
+      cart.push({
+        img:this.state.result[index].urlToImage, 
+        title: this.state.result[index].title,
+        amount: 0
+      });
+    }
+    
+    
+    this.setState({
+      cartCount: this.state.cartCount+1,
+      cart: cart
+    });
+
+    console.log(this.state.cart);
+  }
   render() {
-    const { error, isLoaded, items } = this.state;
+    let marketPlace;
+    const { error, isLoaded } = this.state;
     if (error) {
       return <div>Error: {error.message}</div>;
     } else if (!isLoaded) {
       return <div>Loading...</div>;
     } else {
-      return (
-        <div>
-          {this.state.result.map(item => {
-            return(
-              <NewsCard title={item.title} img={item.urlToImage}/>
-            );
-          })}
-        </div>
-      );
+      this.marketPlace=this.state.result.map((item,index) => {
+            return <NewsCard 
+            title={item.title} 
+            img={item.urlToImage} 
+            click={()=>this.addToCart(index, item.title)}/>
+          });
     }
+    return(
+      <div>
+        <NavBar cartCount={(this.state.cartCount === 0)?'':this.state.cartCount}/>
+        <br/>
+        <div className="container mt-5">
+          {this.marketPlace}
+        </div>
+      </div>
+    );
   }
 }
 
