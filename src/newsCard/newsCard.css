@@ -1,0 +1,20 @@
+.newsCard{
+    height: 300px;
+    width: 200px;
+    float: left;
+    margin: 10px;
+}
+
+.newsCard img{
+    height: 180px;
+    width: 200px;
+}
+
+.newsCard h2{
+    max-width: 200px;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
