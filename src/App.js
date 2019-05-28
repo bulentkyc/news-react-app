@@ -3,6 +3,7 @@ import './App.css';
 
 import NewsCard from './newsCard/newsCard';
 import NavBar from './navBar/navBar'
+import CartItem from './CartItem/CartItem'
 
 class App extends React.Component {
 
@@ -24,6 +25,7 @@ state = {
             result: result.articles
           });
           console.log(this.state.result);
+          localStorage.setItem('data', result);
         },
         // Note: it's important to handle errors here
         // instead of a catch() block so that we don't swallow
@@ -42,28 +44,77 @@ state = {
     const itemIndex = this.state.cart.findIndex(item => {
       return item.title === title;
     });
-    let cart=[...this.state.cart];
+    let myCart=[...this.state.cart];
     
-    if (itemIndex >= 0) {
-      cart[itemIndex].amount += 1;
+    if (itemIndex > -1) {
+      myCart[itemIndex].amount += 1;
     }else{
-      cart.push({
+      myCart.push({
         img:this.state.result[index].urlToImage, 
         title: this.state.result[index].title,
-        amount: 0
+        amount: 1
       });
     }
-    
-    
     this.setState({
       cartCount: this.state.cartCount+1,
-      cart: cart
+      cart: myCart
+    },() => console.log(this.state.cart,itemIndex));
+  }
+
+  plusBtnClickHandler = (index) => {
+    let myCart=[...this.state.cart];
+    myCart[index].amount += 1;
+
+    this.setState({
+      cart: myCart,
+      cartCount: this.state.cartCount+1
+    });
+  }
+
+  minusBtnClickHandler = (index) => {
+    let myCart=[...this.state.cart];
+    myCart[index].amount -= 1;
+
+    if ( myCart[index].amount===0) {
+      myCart.splice(index,1);
+    }
+
+    this.setState({
+      cart: myCart,
+      cartCount: this.state.cartCount-1
+    });
+  }
+
+  editCountOnInput = (event, index) => {
+    let newAmount = parseInt(event.target.value);
+    let myCart=[...this.state.cart];
+    let oldAmount = myCart[index].amount;
+
+    if (newAmount<=0) {
+      myCart.splice(index,1);
+    }else{
+    
+    myCart[index].amount = newAmount;
+
+  }
+  this.setState({
+      cart: myCart,
+      cartCount: parseInt(this.state.cartCount+(newAmount-oldAmount))
+    });
+  }
+
+  render() {
+    this.cartPlace=this.state.cart.map((item,i)=>{
+      return <CartItem 
+        img={item.img} 
+        title={item.title} 
+        amount={item.amount} 
+        plusClick={()=>this.plusBtnClickHandler(i)}
+        minusClick={()=>this.minusBtnClickHandler(i)}
+        change={(e)=>this.editCountOnInput(e,i)}
+      />
     });
 
-    console.log(this.state.cart);
-  }
-  render() {
-    let marketPlace;
     const { error, isLoaded } = this.state;
     if (error) {
       return <div>Error: {error.message}</div>;
@@ -83,6 +134,27 @@ state = {
         <br/>
         <div className="container mt-5">
           {this.marketPlace}
+
+
+          <div className="modal fade" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+            <div className="modal-dialog modal-dialog-scrollable" role="document">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title" id="exampleModalScrollableTitle">Total Amount {this.state.cartCount}</h5>
+                  <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div className="modal-body">
+                  {this.cartPlace}
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                  
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );

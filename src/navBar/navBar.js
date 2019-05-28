@@ -21,7 +21,9 @@ const navBar = (props) => {
                                 <a id="logInOut" className="nav-link mr-5" href="/login">Home</a>
                             </li>
                         </ul>
-                        <button class="btn btn-outline-success mr-3">Cart <span class="badge badge-light">{props.cartCount}</span></button>
+                        <button className="btn btn-outline-success mr-3" data-toggle="modal" data-target="#cartModal">
+                            Cart
+                        <span className="badge badge-light">{props.cartCount}</span></button>
                     </div>
                 </div>
             </nav>
